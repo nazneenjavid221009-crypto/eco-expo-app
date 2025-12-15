@@ -4,43 +4,36 @@ let quizIndex = 0;
 let score = 0;
 let timerInterval;
 
-fetch("products.json")
-  .then(res => res.json())
-  .then(data => products = data);
-
-fetch("questions.json")
-  .then(res => res.json())
-  .then(data => questions = data.sort(() => Math.random() - 0.5)); // shuffle
+// Load products and questions
+fetch("products.json").then(res => res.json()).then(data => products = data);
+fetch("questions.json").then(res => res.json()).then(data => questions = data.sort(() => Math.random() - 0.5));
 
 // --------------------
-// QR Scanner (using jsQR or simple simulated)
+// Camera QR Scanner
 // --------------------
-const video = document.getElementById('video');
 const scanMessage = document.getElementById('scanMessage');
 
-navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-  .then(stream => { video.srcObject = stream; video.setAttribute("playsinline", true); video.play(); requestAnimationFrame(tick); });
-
-function tick() {
-  // For simplicity, simulate QR scan with prompt for now
-  requestAnimationFrame(tick);
+function onScanSuccess(decodedText, decodedResult) {
+    if (products[decodedText]) {
+        html5QrcodeScanner.clear().then(_ => {
+            showScreen2(products[decodedText]);
+        }).catch(err => console.error(err));
+    } else {
+        scanMessage.textContent = "Unknown product!";
+    }
 }
 
-video.addEventListener("click", () => {
-  const code = prompt("Enter QR code content (prod1-prod5):"); // temporary for testing
-  handleQR(code);
-});
+const html5QrcodeScanner = new Html5Qrcode("qr-reader");
+const config = { fps: 10, qrbox: 250 };
 
-function handleQR(code) {
-  if (products[code]) {
-    showScreen2(products[code]);
-  } else {
-    scanMessage.textContent = "Unknown product!";
-  }
-}
+Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+        html5QrcodeScanner.start(cameras[0].id, config, onScanSuccess);
+    }
+}).catch(err => { scanMessage.textContent = "Camera not found: " + err; });
 
 // --------------------
-// Screen management
+// Screen & Quiz Logic
 // --------------------
 function showScreen2(product) {
   document.getElementById('screen1').classList.remove('active');
@@ -57,9 +50,6 @@ document.getElementById('nextToQuiz').addEventListener('click', () => {
   document.getElementById('screen3').classList.add('active');
 });
 
-// --------------------
-// Quiz Logic
-// --------------------
 document.getElementById('startQuizBtn').addEventListener('click', () => {
   document.getElementById('screen3').classList.remove('active');
   document.getElementById('screen4').classList.add('active');
@@ -74,6 +64,18 @@ document.getElementById('skipQuizBtn').addEventListener('click', () => {
   document.getElementById('finalScore').textContent = "You skipped the quiz!";
 });
 
+document.getElementById('restartBtn').addEventListener('click', () => {
+  document.getElementById('screen5').classList.remove('active');
+  document.getElementById('screen1').classList.add('active');
+  scanMessage.textContent = "Waiting for QR code...";
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) html5QrcodeScanner.start(cameras[0].id, config, onScanSuccess);
+  });
+});
+
+// --------------------
+// Quiz Functions
+// --------------------
 function showQuestion() {
   if (quizIndex >= 5) { endQuiz(); return; }
   const q = questions[quizIndex];
