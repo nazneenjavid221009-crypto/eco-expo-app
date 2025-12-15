@@ -1,12 +1,27 @@
 {
   "prod1": {
-    "name": "Plastic Bottle",
-    "ecoScore": 20,
-    "recommendations": ["Use Steel Bottle", "Refill Instead"]
+    "name": "Glass Bowl",
+    "ecoScore": 90,
+    "recommendations": ["Great choice! Reuse instead of buying new."]
   },
   "prod2": {
-    "name": "Organic Apple",
-    "ecoScore": 90,
-    "recommendations": ["Great Choice!"]
+    "name": "Paper Cup",
+    "ecoScore": 50,
+    "recommendations": ["Use a steel cup or reusable cup."]
+  },
+  "prod3": {
+    "name": "Plastic Spoon",
+    "ecoScore": 20,
+    "recommendations": ["Use metal or bamboo spoon."]
+  },
+  "prod4": {
+    "name": "Metal Plate",
+    "ecoScore": 85,
+    "recommendations": ["Great choice! Reuse and avoid plastic."]
+  },
+  "prod5": {
+    "name": "Cardboard Box",
+    "ecoScore": 70,
+    "recommendations": ["Reuse or recycle after use."]
   }
 }
