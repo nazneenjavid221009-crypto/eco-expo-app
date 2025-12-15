@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eco-Expo App</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 <div id="screen">
@@ -12,7 +13,7 @@
   <!-- Screen 1: QR Scanner -->
   <div id="screen1" class="active">
     <h1>Scan Product QR Code</h1>
-    <video id="video" width="300" height="300"></video>
+    <div id="qr-reader" style="width:300px;"></div>
     <p id="scanMessage">Waiting for QR code...</p>
   </div>
 
@@ -42,10 +43,10 @@
   <div id="screen5">
     <h2>Quiz Completed!</h2>
     <p id="finalScore"></p>
+    <button id="restartBtn">Scan Another Product</button>
   </div>
 
 </div>
-
 <script src="app.js"></script>
 </body>
 </html>
