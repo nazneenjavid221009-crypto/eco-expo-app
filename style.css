@@ -1,25 +1,37 @@
 body {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f0f8ff;
   color: #333;
   margin: 0;
   padding: 0;
 }
 
-.screen { display: none; text-align: center; padding: 50px; }
-.screen.active { display: block; }
+#screen > div {
+  display: none;
+  padding: 20px;
+}
+
+#screen > div.active {
+  display: block;
+}
 
 button {
-  background: #4caf50;
-  color: white;
-  padding: 15px 25px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 10px 20px;
   margin: 10px;
-  transition: transform 0.2s;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
 }
-button:hover { transform: scale(1.1); }
-#recommendations { margin-top: 20px; }
-#treeCanvas { border: 2px solid #333; margin-top: 20px; }
+
+button:hover {
+  background-color: #45a049;
+}
+
+canvas {
+  border: 1px solid #ccc;
+  margin-top: 10px;
+}
