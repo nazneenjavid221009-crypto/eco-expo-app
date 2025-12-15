@@ -1,109 +1,147 @@
-let currentScreen = 1;
-let ecoScore = 0;
-let currentQuestion = 0;
+let products = {};
+let questions = [];
+let quizIndex = 0;
 let score = 0;
-let quizQuestions = [];
+let timerInterval;
 
-const products = {
-  "prod1": { name: "Plastic Bottle", ecoScore: 20, recommendations: ["Use Steel Bottle", "Refill Instead"] },
-  "prod2": { name: "Organic Apple", ecoScore: 90, recommendations: ["Great Choice!"] }
-};
+fetch("products.json")
+  .then(res => res.json())
+  .then(data => products = data);
 
-const questionsPool = [
-  { q: "Which is better for environment?", options: ["Plastic Bag","Cloth Bag"], answer: 1 },
-  { q: "Best energy source?", options: ["Coal","Solar"], answer: 1 },
-  { q: "Recycle symbol color?", options: ["Green","Blue"], answer: 0 },
-  // add 50 questions here
-];
+fetch("questions.json")
+  .then(res => res.json())
+  .then(data => questions = data.sort(() => Math.random() - 0.5)); // shuffle
 
-function showScreen(screenId) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(screenId).classList.add("active");
+// --------------------
+// QR Scanner (using jsQR or simple simulated)
+// --------------------
+const video = document.getElementById('video');
+const scanMessage = document.getElementById('scanMessage');
+
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+  .then(stream => { video.srcObject = stream; video.setAttribute("playsinline", true); video.play(); requestAnimationFrame(tick); });
+
+function tick() {
+  // For simplicity, simulate QR scan with prompt for now
+  requestAnimationFrame(tick);
 }
 
-// -------- QR Code Scanner --------
-function startScanner() {
-  const html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    qrCodeMessage => {
-      html5QrCode.stop();
-      handleProductScan(qrCodeMessage);
-    },
-    errorMessage => { /* ignore errors */ }
-  );
-}
+video.addEventListener("click", () => {
+  const code = prompt("Enter QR code content (prod1-prod5):"); // temporary for testing
+  handleQR(code);
+});
 
-function handleProductScan(code) {
-  if(products[code]){
-    ecoScore = products[code].ecoScore;
-    showScreen("screen-tree");
-    drawTree(ecoScore);
-    displayRecommendations(products[code].recommendations);
+function handleQR(code) {
+  if (products[code]) {
+    showScreen2(products[code]);
   } else {
-    alert("Unknown product!");
+    scanMessage.textContent = "Unknown product!";
   }
 }
 
-// -------- Tree Animation --------
-function drawTree(score){
-  const canvas = document.getElementById("treeCanvas");
-  const ctx = canvas.getContext("2d");
-  let height = 0;
-  const targetHeight = score * 3; // scale for animation
-  function animate() {
-    if(height < targetHeight){
-      height += 2;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = "#228B22";
-      ctx.fillRect(canvas.width/2-5, canvas.height-height, 10, height);
-      requestAnimationFrame(animate);
-    }
-  }
-  animate();
+// --------------------
+// Screen management
+// --------------------
+function showScreen2(product) {
+  document.getElementById('screen1').classList.remove('active');
+  document.getElementById('screen2').classList.add('active');
+  document.getElementById('productName').textContent = product.name;
+  const recList = document.getElementById('recommendations');
+  recList.innerHTML = "";
+  product.recommendations.forEach(r => { const li = document.createElement('li'); li.textContent = r; recList.appendChild(li); });
+  drawTree(product.ecoScore);
 }
 
-function displayRecommendations(recs){
-  const recDiv = document.getElementById("recommendations");
-  recDiv.innerHTML = "<h3>Recommendations:</h3><ul>" + recs.map(r => `<li>${r}</li>`).join("") + "</ul>";
-}
+document.getElementById('nextToQuiz').addEventListener('click', () => {
+  document.getElementById('screen2').classList.remove('active');
+  document.getElementById('screen3').classList.add('active');
+});
 
-// -------- Quiz Logic --------
-function startQuiz(){
-  quizQuestions = questionsPool.sort(() => 0.5 - Math.random()).slice(0,5);
-  currentQuestion = 0;
+// --------------------
+// Quiz Logic
+// --------------------
+document.getElementById('startQuizBtn').addEventListener('click', () => {
+  document.getElementById('screen3').classList.remove('active');
+  document.getElementById('screen4').classList.add('active');
+  quizIndex = 0;
   score = 0;
-  showScreen("screen-quiz");
-  showQuizQuestion();
-}
+  showQuestion();
+});
 
-function showQuizQuestion(){
-  const q = quizQuestions[currentQuestion];
-  document.getElementById("quiz-question").innerText = q.q;
-  const optionsDiv = document.getElementById("quiz-options");
+document.getElementById('skipQuizBtn').addEventListener('click', () => {
+  document.getElementById('screen3').classList.remove('active');
+  document.getElementById('screen5').classList.add('active');
+  document.getElementById('finalScore').textContent = "You skipped the quiz!";
+});
+
+function showQuestion() {
+  if (quizIndex >= 5) { endQuiz(); return; }
+  const q = questions[quizIndex];
+  document.getElementById('quizQuestion').textContent = q.q;
+  const optionsDiv = document.getElementById('quizOptions');
   optionsDiv.innerHTML = "";
   q.options.forEach((opt, i) => {
-    const btn = document.createElement("button");
-    btn.innerText = opt;
-    btn.onclick = () => { if(i===q.answer) score++; };
+    const btn = document.createElement('button');
+    btn.textContent = opt;
+    btn.addEventListener('click', () => { checkAnswer(i); });
     optionsDiv.appendChild(btn);
   });
-  startTimer(10);
+  startTimer();
 }
 
-function startTimer(sec){
-  const timerDiv = document.getElementById("timer");
-  timerDiv.innerText = `Time: ${sec}s`;
-  const interval = setInterval(()=>{
-    sec--;
-    timerDiv.innerText = `Time: ${sec}s`;
-    if(sec<=0){ clearInterval(interval); }
-  },1000);
+function checkAnswer(selected) {
+  if (selected === questions[quizIndex].answer) score++;
+  quizIndex++;
+  clearInterval(timerInterval);
+  showQuestion();
 }
 
-document.getElementById("nextToQuiz").onclick = () => showScreen("screen-quiz-invite");
-document.getElementById("startQuizBtn").onclick = startQuiz;
-document.getElementById("skipQuizBtn").onclick = () => alert("Thanks for visiting!");
+function startTimer() {
+  let timeLeft = 10;
+  const timerP = document.getElementById('timer');
+  timerP.textContent = "Time left: " + timeLeft;
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerP.textContent = "Time left: " + timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      quizIndex++;
+      showQuestion();
+    }
+  }, 1000);
+}
 
-startScanner();
+function endQuiz() {
+  document.getElementById('screen4').classList.remove('active');
+  document.getElementById('screen5').classList.add('active');
+  document.getElementById('finalScore').textContent = `Your Score: ${score}/5`;
+}
+
+// --------------------
+// Tree Animation
+// --------------------
+function drawTree(score) {
+    const canvas = document.getElementById('ecoTree');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const trunkHeight = 50 + (score * 1.5);
+    const trunkWidth = 10;
+    const baseX = canvas.width / 2;
+    const baseY = canvas.height;
+
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(baseX - trunkWidth/2, baseY - trunkHeight, trunkWidth, trunkHeight);
+
+    const leafCount = Math.floor(score / 5);
+    for(let i = 0; i < leafCount; i++){
+        const angle = Math.random() * Math.PI - Math.PI/2;
+        const radius = Math.random() * 20 + 10;
+        const x = baseX + Math.cos(angle) * (trunkHeight / 2);
+        const y = baseY - trunkHeight + Math.sin(angle) * (trunkHeight / 2);
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#228B22';
+        ctx.fill();
+    }
+}
