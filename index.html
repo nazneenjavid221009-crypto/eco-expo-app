@@ -1,50 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eco Expo Interactive App</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/html5-qrcode"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eco-Expo App</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app">
-    <!-- Screen 1: QR Scanner -->
-    <div id="screen-scan" class="screen active">
-      <h1>Scan the Product QR Code</h1>
-      <div id="reader" style="width:300px"></div>
-    </div>
+<div id="screen">
 
-    <!-- Screen 2: Eco Tree + Recommendations -->
-    <div id="screen-tree" class="screen">
-      <h1>Eco Score Tree</h1>
-      <canvas id="treeCanvas" width="400" height="400"></canvas>
-      <div id="recommendations"></div>
-      <button id="nextToQuiz">Next → Quiz?</button>
-    </div>
-
-    <!-- Screen 3: Quiz Invitation -->
-    <div id="screen-quiz-invite" class="screen">
-      <h1>Do you want to try the Rapid-Fire Quiz?</h1>
-      <button id="startQuizBtn">Yes</button>
-      <button id="skipQuizBtn">No</button>
-    </div>
-
-    <!-- Screen 4: Quiz -->
-    <div id="screen-quiz" class="screen">
-      <h1 id="quiz-question"></h1>
-      <div id="quiz-options"></div>
-      <div id="timer"></div>
-      <button id="nextQuestionBtn">Next</button>
-    </div>
-
-    <!-- Screen 5: Quiz Results -->
-    <div id="screen-results" class="screen">
-      <h1>Quiz Results</h1>
-      <div id="scoreDisplay"></div>
-    </div>
+  <!-- Screen 1: QR Scanner -->
+  <div id="screen1" class="active">
+    <h1>Scan Product QR Code</h1>
+    <video id="video" width="300" height="300"></video>
+    <p id="scanMessage">Waiting for QR code...</p>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Screen 2: Eco Tree + Recommendations -->
+  <div id="screen2">
+    <h2 id="productName"></h2>
+    <canvas id="ecoTree" width="400" height="400"></canvas>
+    <ul id="recommendations"></ul>
+    <button id="nextToQuiz">Next</button>
+  </div>
+
+  <!-- Screen 3: Quiz Invitation -->
+  <div id="screen3">
+    <h2>Do you want to try the rapid-fire quiz?</h2>
+    <button id="startQuizBtn">Yes</button>
+    <button id="skipQuizBtn">No</button>
+  </div>
+
+  <!-- Screen 4: Quiz -->
+  <div id="screen4">
+    <h2 id="quizQuestion"></h2>
+    <div id="quizOptions"></div>
+    <p id="timer"></p>
+  </div>
+
+  <!-- Screen 5: Quiz Result -->
+  <div id="screen5">
+    <h2>Quiz Completed!</h2>
+    <p id="finalScore"></p>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
