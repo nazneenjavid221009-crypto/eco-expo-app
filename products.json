@@ -1,0 +1,12 @@
+{
+  "prod1": {
+    "name": "Plastic Bottle",
+    "ecoScore": 20,
+    "recommendations": ["Use Steel Bottle", "Refill Instead"]
+  },
+  "prod2": {
+    "name": "Organic Apple",
+    "ecoScore": 90,
+    "recommendations": ["Great Choice!"]
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "q": "Which is better for environment?",
+    "options": ["Plastic Bag", "Cloth Bag"],
+    "answer": 1
+  },
+  {
+    "q": "Best energy source?",
+    "options": ["Coal", "Solar"],
+    "answer": 1
+  }
+]
